@@ -1,0 +1,51 @@
+[
+  {
+    "name": "Zarnakand",
+    "description": "Sortir de Zanarkand",
+    "fullFild": true,
+    "data": {
+      "playable": [
+        "Tidus",
+        "Auron"
+      ]
+    }
+  },
+  {
+    "name": "Baaj",
+    "description": "Battre le boss + rikku",
+    "fullFild": true,
+    "data": {
+      "playable": [
+        "Tidus"
+      ]
+    }
+  },
+  {
+    "name": "Besaid",
+    "description": "Rencontre avec Wakka, Lulu, Yuna et Khimari",
+    "fullFild": false,
+    "data": {
+      "playable": [
+        "Tidus",
+        "Wakka",
+        "Lulu",
+        "Yuna",
+        "Khimari"
+      ]
+    }
+  },
+  {
+    "name": "Le Liki",
+    "description": "Battre l'aileron de Sin et Ekyu",
+    "fullFild": false,
+    "data": {
+      "playable": [
+        "Tidus",
+        "Wakka",
+        "Lulu",
+        "Yuna",
+        "Khimari"
+      ]
+    }
+  }
+]

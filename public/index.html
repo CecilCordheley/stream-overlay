@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Overlay Stream</title>
+  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/streamcss.runtime.css" />
+  <script src="/js/main.js"></script>
+  <script src="/js/async.js"></script>
+  <script src="js/tmi.min.js"></script>
+  <script src="/js/ChatBot.js"></script>
+  <script src="/js/botCmd.js"></script>
+  <script src="/js/twitchRequest.js"></script>
+  <style type="streamcss">
+    body {
+            stream-overlay: true;
+            stream-height:600px;
+        }
+        .wrapper {
+            fix-grid: "a a" "b c" "d d";
+            fix-areas:Live-"a a" "c b";
+            fix-areas:test-"a a" "b d" "c c";
+            fix-overflow: true;
+            stream-height:100%;
+        }
+        .alert{
+            stream-compoment:alert;
+            duration:3;
+            onEnter:rotate;
+            onAlert:swing;
+            onLeave:swingOut;
+        }
+        .chat{
+            stream-compoment:chat;
+            chat-label:test chat grid;
+            hideCmd:#hideChat;
+            displayCmd:#showChat;
+        }
+   </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div g_area="a">
+      <div class="alert">
+        Ici l'alerte
+      </div>
+    </div>
+    <div g_area="b">
+      <div class="chat"></div>
+    </div>
+    <div g_area="c">
+      <data-source label="follower">most_recent_follower</data-source>
+    </div>
+  </div>
+  <script type="module">
+    import {
+      applyStreamCSS,
+      applyStreamData,
+      animElements,
+      clipDiffuse,
+      setBot,
+      getBot,
+      streamCSS
+    } from './js/streamcss.runtime.js';
+
+    applyStreamCSS?.(); // Appelle uniquement si définie (voir remarque ci-dessous)
+    applyStreamData(5);
+   
+    let displayer = document.querySelector(".alert");
+    var bot = null;
+    var viewers = ["viewer1", "viewer2"];
+    var initBot=(channel) =>{
+      let b= new GameBot("GAMEBOT", [channel]);
+      applyStreamCSS(b);
+     
+     //  updateData();
+      return b;
+    }
+      fetch('/api/data')
+        .then(res => res.json())
+        .then(data => {
+         bot= initBot(data.channel);
+         setBot(bot);
+       //  console.dir(streamCSS.component.bot);
+          
+      //bot.addVariable("twitchQuery", twitchQuery);
+      bot.addVariable("clipDiffuse", clipDiffuse);
+      //   bot.addVariable("setQueue", setQueue);
+      bot.mInterval = 2;
+      bot.setIgnore("WizeBot");
+      bot.setIgnore("wizebot");
+      bot.setIgnore("streamelements");
+      bot.setCommand("#clip", botCmd["getClip"]);
+      bot.setCommand("!join", botCmd["joinQueue"]);
+      bot.setCommand("!reset", botCmd["resetQueue"]);
+      bot.setCommand("!leave", botCmd["leaveQueue"]);
+        bot.openBot();
+        var viewers = ["viewer1", "viewer2"];
+      bot.getBot().on('join', (channel, username, self) => {
+        //      console.dir(channel);
+        if (!self) {
+          if (!bot.isIgnore(username)) {
+            viewers.push(username);
+          }
+        }
+      });
+      bot.openBot();
+        });
+    setInterval(function () {
+      console.dir(viewers);
+      if (viewers.length > 0)
+        displayHello(viewers[0]);
+      viewers.shift();
+    }, 10000);
+    function displayHello(username) {
+      try {
+        displayer.innerHTML = "";
+        let displayName = document.createElement("div");
+        displayName.innerHTML = "Bienvenue : <span class='displayName'>" + username + "</span> installe toi et profite";
+        displayer.appendChild(displayName);
+        displayer.trigger();
+      } catch (err) {
+        //         consoleError.addEntry(err.message);
+      }
+    }
+
+    getInformation();
+  </script>
+
+</body>
+
+</html>

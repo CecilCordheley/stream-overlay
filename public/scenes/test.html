@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live FFX</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/streamcss.runtime.css" />
+    <script src="../js/main.js"></script>
+    <script src="../js/async.js"></script>
+    <script src="../js/tmi.min.js"></script>
+    <script src="../js/ChatBot.js"></script>
+    <script src="../js/botCmd.js"></script>
+    <script src="../js/twitchRequest.js"></script>
+    <style type="streamcss">
+        body {
+            stream-overlay: true;
+            stream-height:1080px;
+        }
+        .wrapper {
+            fix-grid: "a b"  "c c";
+            fix-overflow: true;
+            stream-height:100%;
+        }
+        .alert{
+            stream-compoment:alert;
+            duration:3;
+            onEnter:rotate;
+            onAlert:swing;
+            onLeave:swingOut;
+        }
+        .progressEl{
+            stream-compoment:segment-progress;
+            segments:FFX.json;
+            nextCMD:#next;
+        }
+   </style>
+    <style>
+        .wrapper {
+            grid-template-rows: 85% 15%;
+        }
+
+        .progressEl {
+            position: absolute;
+            width: 520px;
+            height: 200px;
+            background: #1A7774;
+            bottom: 20%;
+            left: 20%;
+            padding: 20px;
+            font-size: 1.3em;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        .progressEl h2 {
+            font-size: 1.9em;
+            border-bottom: 2px solid #A3A3FF;
+        }
+
+        .seg-name {
+            background: #00F;
+            padding: 6px;
+            font-size: 1.4em;
+            width: 50%;
+            align-self: end;
+            color: #FFF;
+        }
+
+        [g_area="a"] {
+            background: #F00;
+        }
+
+        [g_area="b"] {
+            background: #0F0;
+            position: relative;
+        }
+
+        [g_area="c"] {
+            background: #00F;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div g_area="a">
+            Lucarne jeu
+        </div>
+        <div g_area="b">
+            <div class="progressEl"></div>
+        </div>
+        <div g_area="c">
+            <data-source label="cheerer" format="(.*?)\:([0-9]*)/$1 $2 bits">most_recent_cheerer</data-source>
+            <div class="block">
+                <data-source label="follower">most_recent_follower</data-source>
+                <data-source label="sub">most_recent_subscriber</data-source>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import {
+            applyStreamCSS,
+            applyStreamData,
+            animElements,
+            clipDiffuse,
+            setBot,
+            getBot,
+            streamCSS
+        } from '../js/streamcss.runtime.js';
+        var bot = null;
+        // applyStreamCSS(); // Appelle uniquement si définie (voir remarque ci-dessous)
+        applyStreamData(5);
+        var initBot = (channel) => {
+            let b = new GameBot("GAMEBOT", [channel]);
+            applyStreamCSS(b);
+            document.querySelectorAll("[data-source]")?.forEach(c=>{
+                updateDataCompoment(c.getAttribute("data-source"));
+            })
+            
+            //  updateData();
+            return b;
+        }
+        fetch('/api/data')
+            .then(res => res.json())
+            .then(data => {
+                bot = initBot(data.channel);
+                setBot(bot);
+                //  console.dir(streamCSS.component.bot);
+
+                //bot.addVariable("twitchQuery", twitchQuery);
+                bot.addVariable("clipDiffuse", clipDiffuse);
+                //   bot.addVariable("setQueue", setQueue);
+                bot.mInterval = 2;
+                bot.setIgnore("WizeBot");
+                bot.setIgnore("wizebot");
+                bot.setIgnore("streamelements");
+                bot.setCommand("#clip", botCmd["getClip"]);
+                bot.setCommand("!join", botCmd["joinQueue"]);
+                bot.setCommand("!reset", botCmd["resetQueue"]);
+                bot.setCommand("!leave", botCmd["leaveQueue"]);
+                bot.openBot();
+                var viewers = ["viewer1", "viewer2"];
+                bot.getBot().on('join', (channel, username, self) => {
+                    //      console.dir(channel);
+                    if (!self) {
+                        if (!bot.isIgnore(username)) {
+                            viewers.push(username);
+                        }
+                    }
+                });
+                bot.openBot();
+            });
+    </script>
+</body>
+
+</html>

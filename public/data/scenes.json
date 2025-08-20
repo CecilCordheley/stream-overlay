@@ -1,0 +1,14 @@
+[
+  {
+    "name": "scene1",
+    "url": "index.html"
+  },
+  {
+    "name": "scene2",
+    "url": "index.html?scene=scene2"
+  },
+  {
+    "name": "test",
+    "url": "test.html"
+  }
+]

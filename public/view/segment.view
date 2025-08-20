@@ -1,0 +1,88 @@
+<style>
+    .CodeMirror {
+        height: 600px;
+        border: 1px solid #ddd;
+    }
+</style>
+<h2>Segments</h2>
+<ul id="segment-list"></ul>
+<div id="editor-container" style="display:none; margin-top:20px;">
+    <h3>Édition du fichier JSON</h3>
+    <textarea id="editor"></textarea>
+    <br>
+    <button onclick="saveFile()">💾 Sauvegarder</button>
+</div>
+<script>
+    createOrDestroy(streamOverlay, "currentFile", null);
+    createOrDestroy(streamOverlay, "editor", null); // crée
+    async function openEditor(file) {
+        try {
+            streamOverlay.currentFile = file;
+            document.getElementById("editor-container").style.display = "block";
+
+            if (!streamOverlay.editor) {
+                streamOverlay.editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+                    lineNumbers: true,
+                    mode: "application/json",
+                    theme: "dracula",         // Le thème choisi
+                    matchBrackets: true,
+                    autoCloseBrackets: true,
+                    tabSize: 2,           // Indentation en 2 espaces
+                    indentUnit: 2,
+                    smartIndent: true
+                });
+            }
+
+            const res = await fetch(file);
+            const text = await res.text();
+            streamOverlay.editor.setValue(text);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    function saveFile() {
+        if (!streamOverlay.currentFile) return;
+
+        fetch("/api/saveJson", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                filePath: streamOverlay.currentFile.replace(/^\.\.\//, ''),
+                content: streamOverlay.editor.getValue()
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    alert("✅ Fichier sauvegardé !");
+                } else {
+                    alert("❌ Erreur: " + (data.error || "inconnue"));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("❌ Erreur lors de la sauvegarde");
+            });
+    }
+    async function getSegmentList(sucess, failed) {
+        try {
+            const res = await fetch('../data/Library/index.json');
+            const game = await res.json();
+            sucess?.call(this, game);
+        } catch (err) {
+            failed?.call(this, err);
+        }
+
+    }
+    getSegmentList((data) => {
+        var list = document.getElementById("segment-list");
+        for (var _game in data) {
+            let item = document.createElement("li");
+            item.innerHTML = `${_game} - <a target="_blanck" href="#" onclick="openEditor('../data/Library/${data[_game]}');return false;">voir le fichier</a>`;
+            list.appendChild(item);
+        }
+    }, (err) => {
+        console.error(err);
+    })
+</script>

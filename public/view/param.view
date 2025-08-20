@@ -1,0 +1,46 @@
+<h2>⚙️ Paramètres</h2>
+<form id="paramsForm">
+    <div class="compoment">
+        <label for="channel">Chaine twitch :</label>
+        <input type="text" id="channel">
+    </div>
+    <div class="compoment">
+        <label for="stream-label_directory">
+            répertoir de stream label
+        </label>
+        <input type="text" id="stream-label_directory" placeholder="C:/Users/Absolu/Documents/StreamLabels">
+    </div>
+    <button type="submit">Enregistrer</button>
+</form>
+<button id="closeServ">Close Server</button>
+<script>
+    console.log("param View")
+    function stopServer() {
+        fetch('/shutdown', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => alert(data.status))
+            .catch(err => alert('Erreur : ' + err));
+    }
+    document.getElementById("closeServ")?.addEventListener("click", function () {
+        stopServer();
+    })
+    fetch('/api/data')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('channel').value = data.channel || '';
+            document.getElementById('stream-label_directory').value = data.streamlabelsDir || '';
+        });
+
+    document.getElementById('paramsForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        fetch('/api/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                channel: document.getElementById('channel').value,
+                streamlabelsDir: document.getElementById('stream-label_directory').value
+            })
+        }).then(() => alert('Paramètres enregistrés !'));
+    });
+
+</script>

@@ -1,0 +1,71 @@
+<div id="scene-manager">
+    <h2>Liste des scènes</h2>
+    <ul id="scene-list"></ul>
+    <form class="addScene">
+        <div class="compoment">
+            <label for="scene_file">Fichier</label>
+            <input type="text" id="scene_file" placeholder="nom du fichier">
+        </div>
+        <div class="compoment">
+            <label for="scene_name">Nom</label>
+            <input type="text" id="scene_name" placeholder="nom de la scene">
+        </div>
+    </form>
+    <button onclick="addScene()">➕ Ajouter une scène</button>
+</div>
+
+<script>
+    async function loadScenes() {
+        const res = await fetch('/api/getScene');
+        const scenes = await res.json();
+        const ul = document.getElementById('scene-list');
+        ul.innerHTML = '';
+        scenes.forEach((scene, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+      <input value="${scene.name}" onchange="updateScene(${index}, 'name', this.value)" />
+      <input value="${scene.url}" onchange="updateScene(${index}, 'url', this.value)" />
+      <button onclick="deleteScene(${index})">❌</button>
+      <a target='_blank' href='http://${streamOverlay.url}/${scene.url}'>Voir la scene</a>
+    `;
+            ul.appendChild(li);
+        });
+    }
+
+    createOrDestroy(streamOverlay, "scene", []); // crée
+
+    async function fetchScenes() {
+        const res = await fetch('/api/getScene');
+        streamOverlay.scenes = await res.json();
+        loadScenes();
+    }
+
+    function updateScene(index, key, value) {
+        streamOverlay.scenes[index][key] = value;
+        saveScenes();
+    }
+
+    function deleteScene(index) {
+        streamOverlay.scenes.splice(index, 1);
+        saveScenes();
+    }
+
+    function addScene() {
+        let name=document.getElementById("scene_name").value;
+        let url=document.getElementById("scene_file").value;
+        streamOverlay.scenes.push({ name: name, url: url });
+        saveScenes();
+    }
+
+    async function saveScenes() {
+        console.log(typeof(streamOverlay.scenes));
+        await fetch('/api/updateScene', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(streamOverlay.scenes)
+        });
+        loadScenes();
+    }
+
+   fetchScenes();
+</script>

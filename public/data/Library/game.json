@@ -1,0 +1,137 @@
+[
+    {
+        "name": "Intro",
+        "description": "<ul><li>R\u00e9cup\u00e9rer les 2 premi\u00e8res invocs<\/li><li>premiers setup<\/li><\/ul>",
+        "fullFild": true,
+        "data": {
+            "CD": 1,
+            "playable": [
+                "Squall",
+                "Quistis"
+            ]
+        }
+    },
+    {
+        "name": "La mine de soufre",
+        "description": "Obtenir Ifrit, la troisi\u00e8me invocation",
+        "fullFild": true,
+        "data": {
+            "CD": 1,
+            "playable": [
+                "Squall",
+                "Quistis"
+            ]
+        }
+    },
+    {
+        "name": "P\u00eache au poisson",
+        "description": "obtenir les fishfin",
+        "fullFild": true,
+        "data": {
+            "CD": 1,
+            "playable": [
+                "Squall",
+                "Quistis"
+            ]
+        }
+    },
+    {
+        "name": "Dollet",
+        "description": "Anacondor & Elveret",
+        "fullFild": true,
+        "data": {
+            "CD": 1,
+            "playable": [
+                "Squall",
+                "Zell",
+                "Seifer",
+                "Selphie"
+            ]
+        }
+    },
+    {
+        "name": "escape dollet",
+        "description": "battre le goliath",
+        "fullFild": true,
+        "data": {
+            "CD": 1,
+            "playable": [
+                "Squall",
+                "Zell",
+                "Selphie"
+            ]
+        }
+    },
+    {
+        "name": "Le ball",
+        "description": "Debrief & premi\u00e8re rencontre Lenoa",
+        "fullFild": true,
+        "data": {
+            "CD": 1,
+            "playable":["Squall"]
+        }
+    },
+    {
+        "name": "serre de combat",
+        "description": "battre un T-REX et 2<sup>i\u00e8me<\/sup> rencontre avec Elone",
+        "fullFild": true,
+        "data": {
+            "CD": 1,
+            "playable":[
+                "Squall","Quistis"
+            ]
+        }
+    },
+    {
+        "name": "Diablos",
+        "description": "Obtnenir la GF Diablo (nosferatu)",
+        "fullFild": true,
+        "data": {
+            "CD": 1,
+            "playable":["Squall","Selphie","Zell"]
+        }
+    },
+    {
+        "name": "Un r\u00eave \u00e9trange",
+        "description": "Premier r\u00eave de Laguna",
+        "fullFild": true,
+        "data": {
+            "CD": 1,
+            "playable":["Laguna","Kiros","Ward"]
+        }
+    },
+    {
+        "name": "Les hiboux de la for\u00eat",
+        "description": "aider Linoa et d\u00e9jouer un complot fou",
+        "fullFild": false,
+        "data": {
+            "CD": 1,
+            "playable":["Squall","Selphie","Zell"]
+        }
+    },
+    {
+        "name": "Timber",
+        "description": "Sortir de timber et rejoindre la GGU",
+        "fullFild": false,
+        "data": {
+            "CD": 1,
+            "playable":["Squall","Selphie","Zell","Linoa","Quistis"]
+        }
+    },
+    {
+        "name": "Laguna 2",
+        "description": "Sortir des mines d'estar",
+        "fullFild": false,
+        "data": {
+            "CD": 1
+        }
+    },
+    {
+        "name": "Prison",
+        "description": "Sortir des mines d'estar",
+        "fullFild": false,
+        "data": {
+            "CD": 2
+        }
+    }
+]

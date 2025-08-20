@@ -1,0 +1,61 @@
+[
+    {
+        "name": "Altair",
+        "description": "",
+        "fullFild": true,
+        "data": {
+            "playable": [
+                "Firion",
+                "Maria",
+                "Guy"
+            ]
+        }
+    },
+    {
+        "name": "Scott",
+        "description": "",
+        "fullFild": false,
+        "data": {
+            "playable": [
+                "Firion",
+                "Maria",
+                "Guy"
+            ]
+        }
+    },
+    {
+        "name": "MinWu",
+        "description": "",
+        "fullFild": false,
+        "data": {
+            "playable": [
+                "Firion",
+                "Maria",
+                "Guy"
+            ]
+        }
+    },{
+        "name": "Mithril",
+        "description": "",
+        "fullFild": false,
+        "data": {
+            "playable": [
+                "Firion",
+                "Maria",
+                "Guy",
+                "MinWu"
+            ]
+        }
+    },{
+        "name": "SnowCraft",
+        "description": "",
+        "fullFild": false,
+        "data": {
+            "playable": [
+                "Firion",
+                "Maria",
+                "Guy"
+            ]
+        }
+    }
+]
