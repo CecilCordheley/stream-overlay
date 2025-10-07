@@ -1,9 +1,10 @@
 const express = require('express');
+const https =require("https");
 const path = require('path');
 const fs = require('fs');
 const notifier = require('node-notifier');
 const { exec } = require('child_process');
-
+//const twitchAuth = require("twitchAuth");
 const app = express();
 const PORT = 3000;
 
@@ -22,7 +23,7 @@ exec(`start http://localhost:${PORT}/interface`);
 
 // Servez tous les fichiers statiques depuis public/
 app.use(express.static(publicPath));
-
+//app.use("/", twitchAuth);
 // Route /interface → charge index.html
 app.get('/interface', (req, res) => {
   res.sendFile(path.join(publicPath, 'interface', 'index.html'));
@@ -110,6 +111,12 @@ app.get('/api/streamlabel/:key', (req, res) => {
   }
 });
 // Lancement du serveur
-app.listen(PORT, () => {
-  console.log(`Serveur actif sur http://localhost:${PORT}`);
+const options = {
+  key: fs.readFileSync("cert/key.pem"),
+  cert: fs.readFileSync("cert/cert.pem")
+};
+
+// Serveur HTTPS
+https.createServer(options, app).listen(3000, () => {
+  console.log("✅ Serveur HTTPS : https://localhost:3000");
 });
