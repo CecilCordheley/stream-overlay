@@ -1,20 +1,74 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-html.min.js"></script>
+
+<style>
+    .editor-widget {
+        width: 900px;
+        height: 80vh;
+        background: #F3DADA;
+        position: absolute;
+        top: 10%;
+        left: 10%;
+    }
+</style>
 <div id="scene-manager">
     <h2>Liste des scènes</h2>
     <ul id="scene-list"></ul>
     <form class="addScene">
         <div class="compoment">
-            <label for="scene_file">Fichier</label>
-            <input type="text" id="scene_file" placeholder="nom du fichier">
-        </div>
-        <div class="compoment">
             <label for="scene_name">Nom</label>
             <input type="text" id="scene_name" placeholder="nom de la scene">
         </div>
+        <div class="compoment">
+            <label for="scene_file">Fichier</label>
+            <input type="text" id="scene_file" placeholder="nom du fichier">
+        </div>
+
     </form>
     <button onclick="addScene()">➕ Ajouter une scène</button>
 </div>
-
+<div class="showScene">
+    <h3>Scene <a href="#">❌</a></h3>
+    <iframe id="SceneDisplay" src="" frameborder="0"></iframe>
+</div>
+<div class="editor-widget" style="display:none; margin-top:20px;">
+    <h3>Editor</h3>
+    <textarea id="editor"></textarea>
+    <br>
+    <button onclick="saveFile()">💾 Sauvegarder</button>
+</div>
 <script>
+    /*  document.currentScript.closest("[data-view-container]")
+      .addEventListener("viewLoaded", (e) => {
+          console.log("Scene view loaded !", e.detail);
+      });*/
+    createOrDestroy(streamOverlay, "showScene", document.querySelector(".showScene"));
+
+    createOrDestroy(streamOverlay, "currentFile", null);
+    createOrDestroy(streamOverlay, "editor", null); // crée
+    async function openEditor(file) {
+        try {
+            streamOverlay.currentFile = file;
+            document.querySelector(".editor-widget").style.display = "block";
+
+            if (!streamOverlay.editor) {
+                streamOverlay.editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+                    lineNumbers: true,
+                    mode: "text/html",
+                    matchBrackets: true,
+                    autoCloseBrackets: true,
+                    smartIndent: true
+                });
+            }
+
+            const res = await fetch(file);
+            var text = await res.text();
+            text = html_beautify(text, { indent_size: 10, wrap_line_length: 80 });
+            streamOverlay.editor.setValue(text);
+            streamOverlay.editor.setOption("mode", "text/html");
+        } catch (err) {
+            console.error(err);
+        }
+    }
     async function loadScenes() {
         const res = await fetch('/api/getScene');
         const scenes = await res.json();
@@ -26,12 +80,22 @@
       <input value="${scene.name}" onchange="updateScene(${index}, 'name', this.value)" />
       <input value="${scene.url}" onchange="updateScene(${index}, 'url', this.value)" />
       <button onclick="deleteScene(${index})">❌</button>
-      <a target='_blank' href='http://${streamOverlay.url}/${scene.url}'>Voir la scene</a>
+      <a name='displayScene' href='#' onclick="setDisplayer('http://${streamOverlay.url}/${scene.url}'); return false">Voir la scene</a>
+      <a href='#' onclick="openEditor('http://${streamOverlay.url}/${scene.url}');return false;">Modifier</a>
     `;
             ul.appendChild(li);
         });
-    }
+        streamOverlay.showScene.style.display = "none";
+        streamOverlay.showScene.querySelector("h3>a")?.addEventListener("click", () => {
+            streamOverlay.showScene.style.display = "none";
+        })
 
+    }
+    function setDisplayer(url) {
+        let iframe = streamOverlay.showScene.querySelector("iframe");
+        iframe.src = url;
+        streamOverlay.showScene.style.display = "block";
+    }
     createOrDestroy(streamOverlay, "scene", []); // crée
 
     async function fetchScenes() {
@@ -51,14 +115,14 @@
     }
 
     function addScene() {
-        let name=document.getElementById("scene_name").value;
-        let url=document.getElementById("scene_file").value;
+        let name = document.getElementById("scene_name").value;
+        let url = document.getElementById("scene_file").value;
         streamOverlay.scenes.push({ name: name, url: url });
         saveScenes();
     }
 
     async function saveScenes() {
-        console.log(typeof(streamOverlay.scenes));
+        console.log(typeof (streamOverlay.scenes));
         await fetch('/api/updateScene', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -67,5 +131,5 @@
         loadScenes();
     }
 
-   fetchScenes();
+    fetchScenes();
 </script>

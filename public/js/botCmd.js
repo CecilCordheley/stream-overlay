@@ -1,5 +1,12 @@
 window.gameQueue=[];
 var botCmd={
+    "spinWheel":function(args,tag,channel){
+        this.variable("wheelContainer").style.display="block";
+        streamOverlay.wheel.spin();
+    },
+    "showWheel":function(args,tag,channel){
+        this.variable("wheelContainer").style.display="block";
+    },
     "sayHello":function(args,tag,channel){
         sayHello(voiceHello);
         let s=JSON.stringify(voiceHello);

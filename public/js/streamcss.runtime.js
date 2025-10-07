@@ -1,6 +1,6 @@
 // streamcss.runtime.js
 export var streamCSS = {
-    component: {}
+    component: { scene: null }
 }
 export function setBot(newBot, onChange = null) {
     streamCSS.component.bot = newBot;
@@ -10,21 +10,6 @@ export function setBot(newBot, onChange = null) {
 export function getBot() {
     return streamCSS.component.bot;
 }
-/*async function getLiveData() {
-    let keys = ["liveName", "streamer", "jeux", "categorie"]
-    fetch("../AJAX.php?info=data")
-        .then(r => r.json())
-        .then(result => {
-            for (var k in asyncKeys) {
-                let component = document.querySelector(`[data-source=${k}]`);
-                let data = result[asyncKeys[k]];
-                component.innerText = `${data}`;
-                formatTag();
-
-            }
-        })
-        .catch(err => console.error(err));
-}*/
 async function updateSegment(el, file) {
     if (file == undefined) {
         console.dir(window.segmentData);
@@ -32,15 +17,15 @@ async function updateSegment(el, file) {
         const seg = (sgements[0]);
         el.querySelector(".seg-name").innerText = seg.name;
         el.querySelector(".seg-desc").innerText = seg.description;
+
     } else {
-        getSegmentsData(file, (el) => {
+        getSegmentsData(file, (seg) => {
             el.querySelector(".seg-name").innerText = seg.name;
             el.querySelector(".seg-desc").innerText = seg.description;
         }, (err) => {
             console.error(err);
         })
     }
-
 }
 export function getSegmentsData(file, onSuccess, onError) {
     const url = file.includes("/") ? file : `../data/Library/${file}`;
@@ -150,9 +135,9 @@ function parseTag() {
         span.dataset.source = el.innerText;
 
         const format = el.getAttribute("format");
-        const label=el.getAttribute("label");
+        const label = el.getAttribute("label");
         const animate = el.getAttribute("animate");
-        if(label) span.setAttribute("label",label);
+        if (label) span.setAttribute("label", label);
         if (format) span.setAttribute("format", format);
         if (animate) span.setAttribute("animate", animate);
 
@@ -270,6 +255,22 @@ function setChatDisplayer(chat) {
         divs[0].remove();
     }
 }
+async function getDatas(success, failed) {
+    try {
+        fetch("/api/data")
+            .then(r => { return r.json() })
+            .then(result => {
+                success.call(this, result);
+            })
+    } catch (err) {
+        failed?.call(this, err)
+    }
+}
+function isNotExist(el,fnc){
+    if(el!=undefined){
+        fnc();
+    }
+}
 export function applyStreamCSS(bot, styleSelector = 'style[type="streamcss"]') {
     if (bot == undefined)
         console.log("no bot")
@@ -284,16 +285,55 @@ export function applyStreamCSS(bot, styleSelector = 'style[type="streamcss"]') {
             const propMap = Object.fromEntries(props.map(p => p.split(":").map(s => s.trim())));
 
             switch (val) {
+                case "liveMessage": {
+                    let timer = propMap["duration"] ? propMap["duration"] : 5;
+                    getDatas((data) => {
+                        el.classList.add("liveMessage");
+                        el.innerHTML =`<span>${data.message}</span>` ;
+                    }, (err) => {
+                        console.error(err);
+                    });
+                    streamCSS.component.intervalMessage = setInterval(() => {
+                        getDatas((data) => {
+                           el.innerHTML =`<span>${data.message}</span>` ;
+                        }, (err) => {
+                            console.error(err);
+                        });
+                    }, timer * 1000);
+                    break;
+                }
+
+                case "wheel": {
+                    let span = document.createElement("span");
+                    let canvas = document.createElement("canvas");
+                    canvas.width = 300;
+                    canvas.height = 300;
+                    let spinButton = document.createElement("div");
+                    el.appendChild(span);
+                    el.appendChild(canvas);
+                    el.appendChild(spinButton);
+                    const wheelObject = new Wheel(canvas, spinButton, span, "../data/wheel.json");
+                    streamOverlay.wheel = wheelObject;
+                    wheelObject.start();
+                    break;
+                }
+
                 case "segment-progress": {
-                    if (el.querySelector("h2") == undefined) {
+                   /* if (el.querySelector("h2") == undefined) {
                         let title = document.createElement("h2");
+                         title.innerText = propMap["title"] ? propMap["title"] : "Segments";
+                        el.appendChild(title);
+                    }*/
+                    isNotExist(el.querySelector("h2"),()=>{
                         title.innerText = propMap["title"] ? propMap["title"] : "Segments";
                         el.appendChild(title);
-                    }
+                    })
                     if (propMap["segments"] == undefined) {
                         console.error("segments File Missing");
                     } else {
                         let file = propMap["segments"];
+                        let timer = (propMap["timing"]) ? propMap["timing"] : 5;
+
                         getSegmentsData(file, (seg) => {
                             if (el.querySelector(".seg-name") == undefined) {
                                 let name = document.createElement("span");
@@ -307,28 +347,36 @@ export function applyStreamCSS(bot, styleSelector = 'style[type="streamcss"]') {
                                 desc.innerText = seg.description;
                                 el.appendChild(desc);
                             }
+
                             if (propMap["data-display"] != undefined) {
                                 console.dir(propMap["data-display"]);
-                                dataDisplay = propMap["data-display"].split(",");
-                                let dataEl = document.createElement("ul");
+                                const dataDisplay = propMap["data-display"].split(",");
+                                let dataEl = el.querySelector(".seg-data") || document.createElement("ul");
                                 dataEl.classList.add("seg-data");
-                                dataDisplay.forEach(el => {
-                                    console.log("element", el);
-                                    console.dir(seg.data[el]);
+                                dataEl.innerHTML = ""; // vide avant de remplir (évite les doublons)
+                                dataDisplay.forEach(key => {
+                                    console.log("element", key);
+                                    console.dir(seg.data[key]);
                                     let item = document.createElement("li");
-                                    item.innerText = seg.data[el];
+                                    item.innerText = seg.data[key];
                                     dataEl.appendChild(item);
                                 });
-                                el.appendChild(dataEl);
+
+                                if (!el.querySelector(".seg-data")) {
+                                    el.appendChild(dataEl);
+                                }
                             }
+
+                            // L'interval doit toujours démarrer (qu'il y ait data-display ou non)
+                            let segInt = setInterval(() => {
+                                updateSegment(el, file);
+                            }, timer * 1000);
                         }, (err) => {
-                            console.error(err)
-                        })
-                        /*  let segInt = setInterval(() => {
-                              updateSegment(el);
-                          }, propMap["timing"] * 1000);*/
+                            console.error(err);
+                        });
                     }
-                    if (propMap.nextCMD && bot != undefined)
+
+                    if (propMap.nextCMD && typeof bot !== "undefined" && bot)
                         bot.setCommand(propMap.nextCMD, (args, tag, channel) => {
                             if (tag.username !== channel.substring(1)) {
                                 bot.message(`/me vous n'avez pas accès à cette commande`);
@@ -340,10 +388,13 @@ export function applyStreamCSS(bot, styleSelector = 'style[type="streamcss"]') {
                             if (index !== -1) {
                                 window.segmentData[index].fullFild = true;
                             }
+
                             updateSegment(el);
                         });
+
                     break;
                 }
+
                 case 'chat': {
                     if (el.querySelector("h2") == undefined) {
                         let title = document.createElement("h2");
@@ -352,13 +403,21 @@ export function applyStreamCSS(bot, styleSelector = 'style[type="streamcss"]') {
                     }
                     if (bot) {
                         bot.onMessage((tag, message) => {
-
                             setChatDisplayer(el);
                             let msgContainer = document.createElement("div");
                             msgContainer.style.display = 'flex';
                             msgContainer.innerHTML = `<span>${tag.username}</span><span>${message}</span>`;
+                            getDatas((data) => {
+                                if (data.chatState == "hide") {
+                                    el.style.display = "none";
+                                } else {
+                                    console.log("no chat State");
+                                }
+                            }, (err) => {
+                                console.error(err);
+                            });
                             el.appendChild(msgContainer);
-                        })
+                        });
                         if (propMap.hideCmd)
                             bot.setCommand(propMap.hideCmd, (args, tag, channel) => {
                                 if (tag.username !== channel.substring(1)) {
@@ -376,14 +435,10 @@ export function applyStreamCSS(bot, styleSelector = 'style[type="streamcss"]') {
                                 el.style.display = "flex";
                             });
                     }
-                    /*  _cBot.on('message', (channel, tags, message, self) => {
-                          console.dir(el);
-                          if (self) return; // Ignore les messages du bot
-                          
-                      });*/
                     break;
                 }
-                case "widget":
+
+                case "widget": {
                     if (propMap.showCompoment && propMap.showCompoment !== "onload") {
                         el.style.display = "none";
 
@@ -411,8 +466,9 @@ export function applyStreamCSS(bot, styleSelector = 'style[type="streamcss"]') {
                         }
                     }
                     break;
+                }
 
-                case "alert":
+                case "alert": {
                     Object.assign(el.style, {
                         width: "25%",
                         aspectRatio: "16/9",
@@ -434,22 +490,26 @@ export function applyStreamCSS(bot, styleSelector = 'style[type="streamcss"]') {
                     };
 
                     break;
+                }
 
-                case "clip":
+                case "clip": {
                     Object.assign(el.style, {
                         width: "360px",
                         aspectRatio: "16/9"
                     });
                     el.setAttribute("clip_displayer", "1");
                     break;
+                }
 
-                case "counter":
+                case "counter": {
                     el.style.width = "15%";
                     el.style.aspectRatio = "16/9";
                     setCounter(el);
                     break;
+                }
             }
         },
+
         "stream-default": (el, val) => {
             if (val === "true") {
                 Object.assign(el.style, {
@@ -479,6 +539,7 @@ export function applyStreamCSS(bot, styleSelector = 'style[type="streamcss"]') {
         "fix-areas": (el, val) => {
             let params = new URLSearchParams(window.location.search);
             let sceneName = params.get('scene');
+            streamOverlay.sceneName = sceneName;
             let cssParams = val.split("-");
             let sceneParam = cssParams[0];
 

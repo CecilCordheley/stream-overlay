@@ -11,6 +11,19 @@
 		transform: translateX(0);
 	}
 }
+@keyframes SlideRight {
+	0% {
+		transform: translateX(100%);
+	}
+
+	50% {
+		transform: translateX(0);
+	}
+
+	100% {
+		transform: translateX(-100%);
+	}
+}
 @keyframes Swing {
 	0% {
 		transform: translateX(0);
@@ -55,6 +68,15 @@
 }
 .slideIn {
 	animation: SlideLeft 5s ease 0s infinite normal forwards;
+}
+.liveMessage{
+	position: relative;
+	overflow: hidden;
+}
+.liveMessage span{
+	position: absolute;
+	display: inline-block;
+	animation: SlideRight 5s ease 0s infinite normal forwards;
 }
 [clip_displayer]{
 	position: absolute;

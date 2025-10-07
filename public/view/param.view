@@ -4,6 +4,14 @@
         <label for="channel">Chaine twitch :</label>
         <input type="text" id="channel">
     </div>
+      <div class="compoment">
+        <label for="channel">Etat du chat :</label>
+        <input type="text" id="chatState">
+    </div>
+     <div class="compoment">
+        <label for="channel">Message :</label>
+        <input type="text" id="LiveMessage">
+    </div>
     <div class="compoment">
         <label for="stream-label_directory">
             répertoir de stream label
@@ -13,7 +21,27 @@
     <button type="submit">Enregistrer</button>
 </form>
 <button id="closeServ">Close Server</button>
+<a href="/auth/twitch">➡️ Se connecter avec Twitch</a>
+<div id="result"></div>
 <script>
+    function twitchLog() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get("token");
+
+        if (token) {
+            document.getElementById("result").innerHTML = "<p>Access Token trouvé ✅ : " + token + "</p>";
+
+            // Appel API /api/twitch/me
+            fetch(`/api/twitch/me?token=${token}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("result").innerHTML += "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+                })
+                .catch(err => {
+                    document.getElementById("result").innerHTML += "<p style='color:red'>Erreur: " + err + "</p>";
+                });
+        }
+    }
     console.log("param View")
     function stopServer() {
         fetch('/shutdown', { method: 'POST' })
@@ -29,6 +57,8 @@
         .then(data => {
             document.getElementById('channel').value = data.channel || '';
             document.getElementById('stream-label_directory').value = data.streamlabelsDir || '';
+            document.getElementById('chatState').value = data.chatState || '';
+             document.getElementById('LiveMessage').value = data.message || '';
         });
 
     document.getElementById('paramsForm').addEventListener('submit', (e) => {
@@ -38,7 +68,8 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 channel: document.getElementById('channel').value,
-                streamlabelsDir: document.getElementById('stream-label_directory').value
+                streamlabelsDir: document.getElementById('stream-label_directory').value,
+                message: document.getElementById('LiveMessage').value
             })
         }).then(() => alert('Paramètres enregistrés !'));
     });

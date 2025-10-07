@@ -11,6 +11,106 @@ body {
     background: #f5f5f7;
     height: 100vh;
 }
+a{
+    transition: .7s;
+}
+a:hover{
+    transform: scale(1.2);
+}
+.showScene {
+    width: 900px;
+    aspect-ratio: 16 / 9;
+    position: absolute;
+    background: #FFF;
+    top: 20%;
+    left: 10%;
+    overflow: auto;
+}
+
+.showScene h3 {
+    position: absolute;
+    top: -10px;
+}
+#editor-container{
+    width: 50%;
+}
+.UiContainer {
+    width: 900px;
+    height: 500px;
+    background: #fff6ce;
+    position: absolute;
+    top: 20%;
+    left: 25%;
+}
+
+.UiContainer div {
+    width: 100%;
+    background: #20232a;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+#segment-list {
+    width: 50%;
+    background: #555;
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 5px;
+    padding: 6px;
+    color: #FFF;
+    font-size: 1.3em;
+}
+
+#segment-list li a {
+    color: #2eA36E;
+    text-decoration: none;
+    display: inline-block;
+    width: 125px;
+    text-align: center;
+}
+
+#updaterUI>div span {
+    width: 40%;
+    display: inline-block;
+    color: #FFF;
+    background: #2A7575;
+    padding: 5px;
+    margin: 10px;
+    border-radius: 9px;
+    transition: .7s;
+    cursor: pointer;
+}
+#updaterUI{
+    max-height: 500px;
+    overflow: auto;
+}
+/*#updaterUI>div span:first-of-type{
+    transform: scale(1.2);
+}*/
+#updaterUI .fullField span{
+    background: #6d5151;
+}
+#updaterUI.UiContainer>div span{
+    transform: scale(.9);
+}
+#updaterUI>div span:hover {
+    background: #3EE;
+    color: #000;
+}
+
+.showScene iframe {
+    width: 1920px;
+    height: 1080px;
+    border: 0;
+    position: absolute;
+    top: 10px;
+    left: 0;
+    transform: scale(0.46875);
+    transform-origin: 0 0;
+    display: block;
+}
 
 .dashboard {
     display: grid;
@@ -35,7 +135,8 @@ header {
 header h1 {
     color: #3EE;
 }
-.compoment{
+
+.compoment {
     display: flex;
     align-content: baseline;
     align-items: baseline;
@@ -43,6 +144,7 @@ header h1 {
     width: 40%;
     margin: 5px;
 }
+
 input {
     background: #CCC;
     border: none;

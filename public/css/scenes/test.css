@@ -1,0 +1,198 @@
+ .wrapper {
+     grid-template-rows: 85% 15%;
+ }
+
+ video,
+ canvas {
+     /* width: 100%;
+            height: 100%;*/
+     transform-style: preserve-3d;
+
+     position: absolute;
+     transform: rotateY(-45deg);
+ }
+
+ .webCam {
+     width: 640px;
+     height: 480px;
+     border: 1px solid black;
+     position: relative;
+     perspective: calc((640px/4)*3);
+ }
+
+ /*.webCam::after {
+            content: '';
+            width: 100%;
+            height: 100%;
+            background-color: #555;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }*/
+
+ .message {
+     color: #000;
+     background: #2A22a3;
+     float: right;
+     font-size: 1.5em;
+     width: 425px;
+     height: 50px;
+ }
+.message span{
+    width: 750px;
+    color: #FFF;
+}
+.message span b{
+    color: #FF0;
+}
+ .sessionRaid>div {
+     background: #00F;
+     filter: drop-shadow(2px 2px 5px #000);
+     color: #FFF;
+     width: auto;
+     float: left;
+     padding: 18px;
+     font-size: 1.6em;
+     margin-left: 75px;
+ }
+
+ .sessionRaid>div span {
+     color: #FF0;
+ }
+
+ .alert {
+     width: 500px;
+     height: 125px;
+     background: #00F;
+     float: right;
+     filter: drop-shadow(2px 2px 5px #000);
+ }
+
+ .alert div {
+     color: #FFF;
+     font-size: 1.6em;
+ }
+
+ .alert div span {
+     color: #FF0;
+ }
+
+ .progressEl {
+     position: absolute;
+     width: 520px;
+     height: 200px;
+     background: #1A7774;
+     bottom: 20%;
+     left: 20%;
+     padding: 20px;
+     font-size: 1.3em;
+     display: flex;
+     flex-direction: column;
+     justify-content: space-around;
+ }
+
+ .progressEl h2 {
+     font-size: 1.9em;
+     border-bottom: 2px solid #A3A3FF;
+ }
+
+ .seg-name {
+     background: #00F;
+     padding: 6px;
+     font-size: 1.4em;
+     width: 50%;
+     align-self: end;
+     color: #FFF;
+ }
+
+ [g_area="b"] {
+     position: relative;
+ }
+
+ .footer {
+     color: #FFF;
+     font-size: 1.3em;
+ }
+
+ .block {
+     width: 450px;
+     background: #1A7774;
+     height: 75px;
+     position: absolute;
+     transition: .7s;
+     font-size: 1.6em;
+ }
+
+ #contentInfo {
+     height: 100px;
+     width: 457px;
+     overflow: hidden;
+     position: relative;
+     float: left;
+ }
+
+ #contentInfo::after {
+     content: '';
+     display: block;
+     position: absolute;
+     background: #00F;
+     height: 104px;
+     width: 31px;
+     left: 400px;
+     transform: rotate(45deg);
+     z-index: 5;
+ }
+
+ #wheelOfFortune {
+     display: inline-block;
+     position: absolute;
+     overflow: hidden;
+     width: 30%;
+     left: 15%;
+     top: 15%;
+ }
+
+ #wheelOfFortune canvas {
+     display: block;
+     width: 100%;
+ }
+
+ #wheelOfFortune span {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     font-size: 1.6rem;
+     background: #3AdA2A;
+     padding: 5px;
+     border-radius: 5px;
+ }
+
+ #wheelOfFortune div {
+     font: 1.5em/0 sans-serif;
+     user-select: none;
+     cursor: pointer;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     background-color: #2A22a3;
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     width: 30%;
+     height: 30%;
+     margin: -15%;
+     background: #fff;
+     color: #fff;
+     box-shadow: 0 0 0 8px currentColor, 0 0px 15px 5px rgba(0, 0, 0, 0.6);
+     border-radius: 50%;
+     transition: 0.8s;
+ }
+
+ #spin::after {
+     content: '';
+     position: absolute;
+     top: -17px;
+     border: 10px solid transparent;
+     border-bottom-color: currentColor;
+     border-top: none;
+ }

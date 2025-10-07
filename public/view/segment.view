@@ -1,10 +1,11 @@
 <style>
     .CodeMirror {
-        height: 600px;
+        height: 300px;
         border: 1px solid #ddd;
     }
 </style>
 <h2>Segments</h2>
+<p>Ici la liste des segments</p>
 <ul id="segment-list"></ul>
 <div id="editor-container" style="display:none; margin-top:20px;">
     <h3>Édition du fichier JSON</h3>
@@ -75,13 +76,168 @@
         }
 
     }
+    function setUpdaterLink() {
+        let links = document.querySelectorAll("[name=editor]");
+        links.forEach(el => {
+            el.onclick = function () {
+                file = el.getAttribute("file");
+                openUpdaterUI(file)
+                return false;
+            }
+        })
+    }
+    function openUpdaterUI(file) {
+        streamOverlay.currentFile = file;
+        document.getElementById("editor-container").style.display = "none";
+        fetch(file)
+            .then(r => r.json())
+            .then(result => {
+                let UiContainer = document.createElement("div");
+                UiContainer.setAttribute("id", "updaterUI");
+                UiContainer.classList.add('UiContainer');
+
+                // Bouton fermer
+                let closeBtn = document.createElement("a");
+                closeBtn.href = "#";
+                closeBtn.innerHTML = "❌";
+                closeBtn.onclick = function () {
+                    UiContainer.remove();
+                    return false;
+                };
+                UiContainer.appendChild(closeBtn);
+
+                // Liste des segments
+                let JSONContainer = document.createElement("div");
+                JSONContainer.classList.add("segment-list");
+
+                function renderSegments() {
+                    JSONContainer.innerHTML = "";
+                    result.forEach((seg, idx) => {
+                        let segContainer = document.createElement("div");
+                        segContainer.classList.add("segment-item");
+                        let fullfild = seg.fullFild ? "fullField" : "running";
+                        segContainer.classList.add(fullfild)
+                        let name = document.createElement("span");
+                        name.innerText = seg.name;
+                        segContainer.appendChild(name);
+                        segContainer?.addEventListener("click", function () {
+                            seg.fullFild = true;
+                            this.classList.remove("running");
+                            this.classList.add("fullField");
+                        })
+                        // bouton modifier
+                        let editBtn = document.createElement("button");
+                        editBtn.innerText = "✏️";
+                        editBtn.onclick = () => editSegment(idx);
+                        segContainer.appendChild(editBtn);
+
+                        // bouton supprimer
+                        let delBtn = document.createElement("button");
+                        delBtn.innerText = "🗑️";
+                        delBtn.onclick = () => {
+                            if (confirm("Supprimer ce segment ?")) {
+                                result.splice(idx, 1);
+                                renderSegments();
+                            }
+                        };
+                        segContainer.appendChild(delBtn);
+
+                        JSONContainer.appendChild(segContainer);
+                    });
+                }
+
+                // Formulaire ajouter / modifier
+                let form = document.createElement("form");
+                form.classList.add("segment-form");
+
+                let nameInput = document.createElement("input");
+                nameInput.placeholder = "Nom du segment";
+                form.appendChild(nameInput);
+
+                let descInput = document.createElement("input");
+                descInput.placeholder = "Description";
+                form.appendChild(descInput);
+
+                let saveFormBtn = document.createElement("button");
+                saveFormBtn.innerText = "Ajouter";
+                form.appendChild(saveFormBtn);
+
+                let editIndex = null;
+
+                function editSegment(idx) {
+                    editIndex = idx;
+                    nameInput.value = result[idx].name;
+                    descInput.value = result[idx].description || "";
+                    saveFormBtn.innerText = "Modifier";
+                }
+
+                form.onsubmit = function (e) {
+                    e.preventDefault();
+                    const seg = {
+                        name: nameInput.value.trim(),
+                        description: descInput.value.trim(),
+                        fullFild: false
+                    };
+
+                    if (editIndex !== null) {
+                        result[editIndex] = seg;
+                        editIndex = null;
+                        saveFormBtn.innerText = "Ajouter";
+                    } else {
+                        result.push(seg);
+                    }
+
+                    nameInput.value = "";
+                    descInput.value = "";
+                    renderSegments();
+                };
+
+                UiContainer.appendChild(form);
+                UiContainer.appendChild(JSONContainer);
+
+                // bouton sauvegarder JSON
+                const saveBtn = document.createElement("button");
+                saveBtn.innerText = "💾 Sauvegarder";
+                saveBtn.onclick = async () => {
+                    try {
+                        const saveRes = await fetch("/api/saveJson", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                filePath: file.replace(/^\.\.\//, ''),
+                                content: JSON.stringify(result, null, 2)
+                            })
+                        });
+                        const data = await saveRes.json();
+                        if (data.status === "ok") {
+                            alert("✅ Modifications sauvegardées !");
+                        } else {
+                            alert("❌ Erreur: " + (data.error || "inconnue"));
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert("❌ Erreur lors de la sauvegarde");
+                    }
+                };
+                UiContainer.appendChild(saveBtn);
+
+                document.querySelector("main").appendChild(UiContainer);
+
+                renderSegments();
+            });
+        return false;
+    }
+
     getSegmentList((data) => {
         var list = document.getElementById("segment-list");
         for (var _game in data) {
             let item = document.createElement("li");
-            item.innerHTML = `${_game} - <a target="_blanck" href="#" onclick="openEditor('../data/Library/${data[_game]}');return false;">voir le fichier</a>`;
+            item.innerHTML = `${_game}<a target="_blank" href="#" onclick="openEditor('../data/Library/${data[_game]}');return false;">voir le fichier</a>`;
+            item.innerHTML += `<a href='#' file='../data/Library/${data[_game]}' name='editor'>Modifier</a>`;
             list.appendChild(item);
+
         }
+        setUpdaterLink();
     }, (err) => {
         console.error(err);
     })

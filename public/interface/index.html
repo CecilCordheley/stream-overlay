@@ -6,13 +6,13 @@
     <title>StreamCSS - Interface</title>
     <link rel="stylesheet" href="../css/interface.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/dracula.min.css">
     <script src="../js/view.js"></script>
     <script src="../js/main.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/matchbrackets.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closebrackets.min.js"></script>
 
 </head>
 
@@ -20,30 +20,43 @@
     <div class="dashboard">
         <header>
             <h1>🎮 StreamCSS en ligne</h1>
-            <p>Statut : ✅ Serveur lancé sur <a target="_blank" href="http://localhost:3000/scenes">http://localhost:3000</a>
+            <p>Statut : ✅ Serveur lancé sur <a target="_blank"
+                    href="http://localhost:3000/scenes">http://localhost:3000</a>
             </p>
         </header>
         <nav class="sidebar">
-            <button>Général</button>
+            <button id="paramAccess">Général</button>
             <button id="manageScene">Scènes</button>
             <button>StreamLabels</button>
             <button id="SegmentManager">Segments Manager</button>
             <button>close server</button>
         </nav>
-        <main class="main">
-
+        <main class="main" data-view-container>
+           
         </main>
     </div>
     <script>
         let container = document.querySelector("main");
-        loadView("param.view", container, () => {
-            
+        loadView("param.view", container);
+        document.getElementById("paramAccess")?.addEventListener("click",()=>{
+            loadView("param.view",container);
         })
-        document.getElementById("manageScene")?.addEventListener("click",()=>{
-            loadView("scene.view",container)
+        document.getElementById("manageScene")?.addEventListener("click",async () => {
+            try {
+                const containerLoaded = await loadView("scene.view", container);
+                const scene = containerLoaded.querySelector(".showScene");
+                if (scene) {
+                    scene.style.display = "none";
+                    streamOverlay.showScene = scene;
+                }else{
+                    console.error("pop");
+                }
+            } catch (err) {
+                console.error("Erreur de chargement de la vue :", err);
+            }
         });
-        document.getElementById("SegmentManager")?.addEventListener("click",()=>{
-            loadView("segment.view",container);
+        document.getElementById("SegmentManager")?.addEventListener("click", () => {
+            loadView("segment.view", container);
         })
     </script>
 </body>

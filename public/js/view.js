@@ -10,16 +10,23 @@ function executeScript(container) {
         document.head.appendChild(newScript).remove(); // Évite les doublons
     });
 }
-async function loadView(url,container,succes,failed){
-    fetch("../view/"+url)
-    .then(r=>{return r.text()})
-    .then(result=>{
-        container.innerHTML=result;
-        executeScript(container);
-        succes?.call(this);
-    })
-    .catch(err=>{
-        console.error(err);
-        failed?.call(err);
-    })
+function loadView(url, container) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch("../view/" + url);
+            const result = await response.text();
+            container.innerHTML = result;
+            executeScript(container);
+
+            // 🔥 Dispatch d'un event personnalisé
+            const evt = new CustomEvent("viewLoaded", { detail: { url, container } });
+            container.dispatchEvent(evt);
+
+            resolve(container);
+        } catch (err) {
+            console.error(err);
+            reject(err);
+        }
+    });
 }
+
